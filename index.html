@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronic Illness Patient Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2; /* Light Blue */
+            --secondary-color: #5DC96C; /* Soft Green */
+            --alert-color: #FFCC5C; /* Warm Yellow */
+            --text-color: #333;
+            --light-gray: #f5f7fa;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .language-switcher {
+            position: relative;
+        }
+
+        .language-switcher select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .report-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            background-color: var(--alert-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 1.5rem 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .report-button:hover {
+            background-color: #FFD97F;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .range-slider {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .submit-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #4EB15D;
+        }
+
+        .medication-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .medication-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .medication-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .medication-name {
+            font-weight: 600;
+        }
+
+        .medication-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .taken-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .taken-button:hover {
+            background-color: #4EB15D;
+        }
+
+        .taken-button.taken {
+            background-color: #ddd;
+            color: #666;
+            cursor: default;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .reminder {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 300px;
+            animation: slideIn 0.5s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .reminder-icon {
+            background-color: var(--alert-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reminder-content {
+            flex: 1;
+        }
+
+        .reminder-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .reminder-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .close-reminder {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Language Switcher -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">+</div>
+            <span>SmartCare</span>
+        </div>
+        <div class="language-switcher">
+            <select id="language-select" onchange="changeLanguage()">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ADR Check Button -->
+        <a href="127.0.0.1:5000" id="report-button" class="report-button">
+            Report Problem or Check Side Effects
+        </a>
+        
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Symptom Logging Card -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 5H7C6.44772 5 6 5.44772 6 6V18C6 18.5523 6.44772 19 7 19H17C17.5523 19 18 18.5523 18 18V6C18 5.44772 17.5523 5 17 5H15" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="9" cy="8" r="1" fill="currentColor"/>
+                        <circle cx="9" cy="12" r="1" fill="currentColor"/>
+                        <circle cx="9" cy="16" r="1" fill="currentColor"/>
+                    </svg>
+                    Daily Symptom Log
+                </h2>
+
+                <form id="symptom-form">
+                    <div class="form-group">
+                        <label for="pain-level">Pain Level</label>
+                        <div class="range-slider">
+                            <input type="range" id="pain-level" min="0" max="10" step="1" value="5">
+                            <div class="slider-labels">
+                                <span>No Pain</span>
+                                <span>Severe</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mood">Mood</label>
+                        <select id="mood">
+                            <option value="great">Great</option>
+                            <option value="good">Good</option>
+                            <option value="okay" selected>Okay</option>
+                            <option value="bad">Not Good</option>
+                            <option value="terrible">Terrible</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes (Optional)</label>
+                        <textarea id="notes" placeholder="How are you feeling today?"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-button">Save Today's Log</button>
+                </form>
+            </div>
+
+            <!-- Medication Logging Card -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21Z" stroke="currentColor" stroke-width="2"/>
+                        <rect x="8" y="7" width="8" height="2" rx="1" fill="currentColor"/>
+                        <rect x="8" y="11" width="8" height="2" rx="1" fill="currentColor"/>
+                        <rect x="8" y="15" width="8" height="2" rx="1" fill="currentColor"/>
+                    </svg>
+                    Medication Tracker
+                </h2>
+
+                <div class="medication-list">
+                    <div class="medication-item">
+                        <div class="medication-details">
+                            <span class="medication-name">Metformin</span>
+                            <span class="medication-time">Morning - 8:00 AM</span>
+                        </div>
+                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
+                    </div>
+
+                    <div class="medication-item">
+                        <div class="medication-details">
+                            <span class="medication-name">Levothyroxine</span>
+                            <span class="medication-time">Morning - 7:00 AM</span>
+                        </div>
+                        <button class="taken-button taken" disabled>Taken ✓</button>
+                    </div>
+
+                    <div class="medication-item">
+                        <div class="medication-details">
+                            <span class="medication-name">Ibuprofen</span>
+                            <span class="medication-time">As needed</span>
+                        </div>
+                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
+                    </div>
+
+                    <div class="medication-item">
+                        <div class="medication-details">
+                            <span class="medication-name">Amlodipine</span>
+                            <span class="medication-time">Evening - 6:00 PM</span>
+                        </div>
+                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptom Trends Card -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12L7 8L13 14L17 10L21 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 17H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Symptom Trends
+                </h2>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab(this, 'daily-view')">Daily</div>
+                    <div class="tab" onclick="switchTab(this, 'weekly-view')">Weekly</div>
+                </div>
+
+                <div id="daily-view" class="chart-container">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+
+                <div id="weekly-view" class="chart-container" style="display: none;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Reminders Card -->
+            <div class="card">
+                <h2 class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Reminder Settings
+                </h2>
+
+                <form id="reminder-form">
+                    <div class="form-group">
+                        <label for="symptom-reminder">Symptom Log Reminder</label>
+                        <select id="symptom-reminder">
+                            <option value="morning">Morning (9:00 AM)</option>
+                            <option value="evening" selected>Evening (7:00 PM)</option>
+                            <option value="none">No Reminder</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="med-reminder">Medication Reminders</label>
+                        <select id="med-reminder">
+                            <option value="each">Each Medication Time</option>
+                            <option value="all" selected>All Medications</option>
+                            <option value="none">No Reminders</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-button">Save Reminder Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reminder Popup (Initially Hidden) -->
+    <div id="reminder" class="reminder" style="display: none;">
+        <div class="reminder-icon">⏰</div>
+        <div class="reminder-content">
+            <div class="reminder-title">Medication Reminder</div>
+            <div class="reminder-text">It's time to take your Metformin</div>
+        </div>
+        <button class="close-reminder" onclick="dismissReminder()">×</button>
+    </div>
+
+    <script>
+        // Initialize Charts
+        function initCharts() {
+            // Daily Chart
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            const dailyChart = new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Pain Level',
+                        data: [5, 6, 4, 3, 5, 2, 3],
+                        borderColor: '#4A90E2',
+                        backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Mood (1-5)',
+                        data: [3, 3, 4, 4, 3, 5, 4],
+                        borderColor: '#5DC96C',
+                        backgroundColor: 'rgba(93, 201, 108, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Weekly Chart
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            const weeklyChart = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Avg. Pain Level',
+                        data: [4.5, 3.8, 2.9, 3.2],
+                        backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                    }, {
+                        label: 'Avg. Mood (1-5)',
+                        data: [3.2, 3.8, 4.1, 3.9],
+                        backgroundColor: 'rgba(93, 201, 108, 0.7)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Set chart container height
+            document.querySelectorAll('.chart-container').forEach(container => {
+                container.style.height = '250px';
+            });
+        }
+
+        // Tab switching function
+        function switchTab(tabElement, viewId) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            tabElement.classList.add('active');
+
+            // Show selected view, hide others
+            document.querySelectorAll('.chart-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            document.getElementById(viewId).style.display = 'block';
+        }
+
+        // Mark medication as taken
+        function markAsTaken(buttonElement) {
+            buttonElement.textContent = 'Taken ✓';
+            buttonElement.classList.add('taken');
+            buttonElement.disabled = true;
+            
+            // Show confirmation animation
+            const item = buttonElement.closest('.medication-item');
+            item.classList.add('fade-in');
+            setTimeout(() => {
+                item.classList.remove('fade-in');
+            }, 300);
+        }
+
+        // Form submission handler
+        document.getElementById('symptom-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const painLevel = document.getElementById('pain-level').value;
+            const mood = document.getElementById('mood').value;
+            const notes = document.getElementById('notes').value;
+            
+            // In a real app, this would send data to the server
+            console.log('Submitted symptom log:', { painLevel, mood, notes });
+            
+            // Show success message or animation
+            const submitButton = this.querySelector('.submit-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Saved! ✓';
+            
+            setTimeout(() => {
+                submitButton.textContent = originalText;
+                document.getElementById('notes').value = '';
+            }, 2000);
+        });
+
+        // Reminder settings form
+        document.getElementById('reminder-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const symptomReminder = document.getElementById('symptom-reminder').value;
+            const medReminder = document.getElementById('med-reminder').value;
+            
+            // In a real app, this would send data to the server
+            console.log('Saved reminder settings:', { symptomReminder, medReminder });
+            
+            // Show success message or animation
+            const submitButton = this.querySelector('.submit-button');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Settings Saved! ✓';
+            
+            setTimeout(() => {
+                submitButton.textContent = originalText;
+                // Show a sample reminder after settings are saved
+                showReminder();
+            }, 2000);
+        });
+
+        // Show reminder notification
+        function showReminder() {
+            const reminder = document.getElementById('reminder');
+            reminder.style.display = 'flex';
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                dismissReminder();
+            }, 10000);
+        }
+
+        // Dismiss reminder
+        function dismissReminder() {
+            const reminder = document.getElementById('reminder');
+            reminder.style.opacity = '0';
+            reminder.style.transform = 'translateX(100%)';
+            
+            setTimeout(() => {
+                reminder.style.display = 'none';
+                reminder.style.opacity = '1';
+                reminder.style.transform = 'translateX(0)';
+            }, 300);
+        }
+
+        // Report button handler
+        document.getElementById('report-button').addEventListener('click', function() {
+            alert('This feature would open a form to report side effects or check for possible adverse drug reactions.');
+        });
+
+        // Language switcher
+        function changeLanguage() {
+            const language = document.getElementById('language-select').value;
+            
+            // In a real app, this would translate the interface
+            alert(`Interface language would change to: ${language}`);
+            
+            // This is just a demo - would need actual translations in a real app
+        }
+
+        // Initialize charts when page loads
+        window.addEventListener('load', function() {
+            initCharts();
+            
+            // Show a sample reminder after 5 seconds
+            setTimeout(showReminder, 5000);
+        });
+    </script>
+</body>
+</html>
