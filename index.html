@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chronic Illness Patient Portal</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #4A90E2; /* Light Blue */
-            --secondary-color: #5DC96C; /* Soft Green */
-            --alert-color: #FFCC5C; /* Warm Yellow */
-            --text-color: #333;
+            --light-blue: #EAF2FF;
+            --success-color: #5CB85C; /* Soft Green */
+            --alert-color: #FFD166; /* Warm Yellow */
+            --danger-color: #e74c3c; /* Red for errors */
+            --text-color: #333333;
             --light-gray: #f5f7fa;
-            --white: #ffffff;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        a{
+            text-decoration: none;
         }
 
         * {
@@ -24,184 +30,251 @@
         }
 
         body {
-            background-color: var(--light-gray);
+            background-color: #f8f9fa;
             color: var(--text-color);
             line-height: 1.6;
         }
 
-        .header {
-            background-color: var(--white);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            padding: 15px 0;
             position: sticky;
             top: 0;
             z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5rem;
-            font-weight: 600;
             color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+        .logo i {
+            font-size: 1.8rem;
         }
 
         .language-switcher {
-            position: relative;
+            display: flex;
+            gap: 10px;
         }
 
-        .language-switcher select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-            font-size: 14px;
+        .language-btn {
+            background: none;
+            border: 1px solid #e0e0e0;
+            padding: 5px 12px;
+            border-radius: 20px;
             cursor: pointer;
+            transition: var(--transition);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        .language-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
-        
+
+        .language-btn:hover:not(.active) {
+            background-color: var(--light-blue);
+        }
+
+        /* Main Content Styles */
         .dashboard {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        @media (min-width: 768px) {
-            .dashboard {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
 
         .card {
-            background-color: var(--white);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            transition: transform 0.3s ease;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            transition: var(--transition);
         }
 
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
 
         .card-title {
             font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
             color: var(--primary-color);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .report-button {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            text-align: center;
-            background-color: var(--alert-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 1.5rem 0;
-            transition: background-color 0.3s ease;
+        .card-title i {
+            color: var(--primary-color);
         }
 
-        .report-button:hover {
-            background-color: #FFD97F;
-        }
-
+        /* Form Styles */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 15px;
         }
 
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 5px;
             font-weight: 500;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        input, select, textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
+            transition: var(--transition);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
         }
 
-        .range-slider {
-            display: flex;
-            flex-direction: column;
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
         }
 
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .submit-button {
-            background-color: var(--secondary-color);
+        .btn-primary {
+            background-color: var(--primary-color);
             color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        .submit-button:hover {
-            background-color: #4EB15D;
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
         }
 
-        .medication-list {
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: var(--text-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #3A80D2;
+        }
+
+        .btn-success:hover {
+            background-color: #4CAA4C;
+        }
+
+        .btn-danger:hover {
+            background-color: #EFBF4C;
+        }
+
+        .btn-large {
+            width: 100%;
+            padding: 15px;
+        }
+
+        /* Pain Scale Slider */
+        .pain-scale {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 10px;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .mood-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .mood-option:hover {
+            background-color: var(--light-blue);
+        }
+
+        .mood-option.selected {
+            background-color: var(--light-blue);
+            color: var(--primary-color);
+        }
+
+        .mood-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* Medication List */
+        .medication-list {
+            list-style: none;
         }
 
         .medication-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
-            background-color: var(--light-gray);
-            border-radius: 8px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
         }
 
-        .medication-details {
+        .medication-item:last-child {
+            border-bottom: none;
+        }
+
+        .medication-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .medication-info {
             display: flex;
             flex-direction: column;
         }
@@ -210,527 +283,1543 @@
             font-weight: 600;
         }
 
-        .medication-time {
+        .medication-schedule {
+            color: #666;
             font-size: 0.9rem;
-            color: #666;
         }
 
-        .taken-button {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .taken-button:hover {
-            background-color: #4EB15D;
-        }
-
-        .taken-button.taken {
-            background-color: #ddd;
-            color: #666;
-            cursor: default;
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 1rem;
-        }
-
-        .tab {
-            padding: 8px 16px;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .tab.active {
-            border-bottom: 2px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .reminder {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background-color: var(--white);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 12px;
-            padding: 1rem;
+        .taken-status {
             display: flex;
             align-items: center;
-            gap: 12px;
-            max-width: 300px;
-            animation: slideIn 0.5s ease-out;
+            gap: 10px;
+        }
+
+        .medication-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chart-tab {
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        .chart-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Log History */
+        .log-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .log-pain {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pain-indicator {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+        }
+
+        /* ADR Button */
+        .adr-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--danger-color);
+            color: var(--text-color);
+            text-align: center;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+
+        .adr-button:hover {
+            background-color: #EFBF4C;
+            transform: translateY(-2px);
+        }
+
+        .adr-button i {
+            margin-right: 10px;
+        }
+
+        /* Reminders */
+        .reminder {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            border-left: 5px solid var(--primary-color);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 500px;
+            animation: slideUp 0.5s ease forwards;
             z-index: 1000;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .reminder-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .reminder-icon {
-            background-color: var(--alert-color);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
         }
 
-        .reminder-content {
-            flex: 1;
-        }
-
-        .reminder-title {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .reminder-text {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .close-reminder {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
+        .reminder-close {
             color: #999;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
         }
 
-        /* Animation classes */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
+        .reminder-close:hover {
+            color: var(--text-color);
         }
 
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
+                transform: translate(-50%, 20px);
             }
             to {
                 opacity: 1;
+                transform: translate(-50%, 0);
             }
+        }
+
+        /* AI Health Assistant Icon Styles */
+        .ai-icon-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .ai-icon-container:hover {
+            transform: scale(1.1);
+        }
+        
+        .ai-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2px solid #e74c3c;
+            position: relative;
+        }
+        
+        .hospital-cross {
+            position: absolute;
+            top: 5px;
+            color: #e74c3c;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .ai-icon i {
+            color: #2c3e50;
+            font-size: 25px;
+            margin-top: 10px;
+        }
+        
+        /* Chat Interface Styles */
+        .chat-interface {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 600px;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: none;
+            overflow: hidden;
+            z-index: 999;
+            border: 1px solid #e3e3e3;
+        }
+        
+        .chat-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            text-align: center;
+        }
+        
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .message {
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            margin-left: 20%;
+        }
+        
+        .bot-message {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #2c3e50;
+            margin-right: 20%;
+            border: 1px solid #dee2e6;
+        }
+        
+        .input-area {
+            padding: 15px;
+            background: #ffffff;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: #c0392b;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+        }
+        
+        .disclaimer {
+            color: #e74c3c;
+            text-align: center;
+            margin: 10px;
+            font-size: 12px;
+            padding: 8px;
+            background: #fff5f5;
+            border-radius: 8px;
+            border: 1px solid #fad7d7;
+        }
+        
+        .symptoms-list {
+            text-align: center;
+            margin: 10px;
+            color: #666;
+            font-style: italic;
+            font-size: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .chat-interface {
+                width: 90%;
+                right: 5%;
+                bottom: 90px;
+            }
+            
+            .ai-icon-container {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        /* Medication Form Styles */
+        .medication-form {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .medication-notes {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Report Generation Styles */
+        .report-form {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-preview {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .report-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .report-section:last-child {
+            border-bottom: none;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .report-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .report-option input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* Reminder System Styles */
+        .reminder-settings {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .reminder-time {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .reminder-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reminder-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reminder-option input[type="time"] {
+            width: auto;
+        }
+
+        .reminder-option input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* Women's Health Button */
+        .women-health-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF69B4, #FF1493);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .women-health-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .women-health-btn i {
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
-    <!-- Header with Logo and Language Switcher -->
-    <div class="header">
-        <div class="logo">
-            <div class="logo-icon">+</div>
-            <span>SmartCare</span>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span class="logo-text">SmartCare Portal</span>
+            </div>
+            <div class="language-switcher">
+                <button class="language-btn active" data-lang="en">English</button>
+                <button class="language-btn" data-lang="hi">हिंदी</button>
+                <button class="language-btn" data-lang="kn">ಕನ್ನಡ</button>
+            </div>
         </div>
-        <div class="language-switcher">
-            <select id="language-select" onchange="changeLanguage()">
-                <option value="en">English</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="kn">ಕನ್ನಡ (Kannada)</option>
-            </select>
-        </div>
-    </div>
+    </header>
 
     <div class="container">
-        <!-- ADR Check Button -->
-        <a href="127.0.0.1:5000" id="report-button" class="report-button">
-            Report Problem or Check Side Effects
-        </a>
-        
-
-        <!-- Main Dashboard -->
         <div class="dashboard">
-            <!-- Symptom Logging Card -->
+            <!-- Daily Symptom Logging Card -->
             <div class="card">
-                <h2 class="card-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 5H7C6.44772 5 6 5.44772 6 6V18C6 18.5523 6.44772 19 7 19H17C17.5523 19 18 18.5523 18 18V6C18 5.44772 17.5523 5 17 5H15" stroke="currentColor" stroke-width="2"/>
-                        <path d="M12 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M12 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M12 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="9" cy="8" r="1" fill="currentColor"/>
-                        <circle cx="9" cy="12" r="1" fill="currentColor"/>
-                        <circle cx="9" cy="16" r="1" fill="currentColor"/>
-                    </svg>
-                    Daily Symptom Log
-                </h2>
-
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-notes-medical"></i> <span class="translate" data-key="symptom-log">Daily Symptom Log</span></h2>
+                </div>
                 <form id="symptom-form">
                     <div class="form-group">
-                        <label for="pain-level">Pain Level</label>
-                        <div class="range-slider">
-                            <input type="range" id="pain-level" min="0" max="10" step="1" value="5">
-                            <div class="slider-labels">
-                                <span>No Pain</span>
-                                <span>Severe</span>
+                        <label for="pain-level" class="translate" data-key="pain-level">Pain Level</label>
+                        <div class="pain-scale">
+                            <input type="range" id="pain-level" min="0" max="10" value="3" step="1">
+                            <div class="scale-labels">
+                                <span class="translate" data-key="no-pain">No Pain</span>
+                                <span class="translate" data-key="moderate">Moderate</span>
+                                <span class="translate" data-key="severe">Severe</span>
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="mood">Mood</label>
-                        <select id="mood">
-                            <option value="great">Great</option>
-                            <option value="good">Good</option>
-                            <option value="okay" selected>Okay</option>
-                            <option value="bad">Not Good</option>
-                            <option value="terrible">Terrible</option>
-                        </select>
+                        <label class="translate" data-key="mood">Mood</label>
+                        <div class="mood-selector">
+                            <div class="mood-option" data-mood="great">
+                                <div class="mood-icon">😄</div>
+                                <span class="translate" data-key="great">Great</span>
+                            </div>
+                            <div class="mood-option selected" data-mood="good">
+                                <div class="mood-icon">🙂</div>
+                                <span class="translate" data-key="good">Good</span>
+                            </div>
+                            <div class="mood-option" data-mood="okay">
+                                <div class="mood-icon">😐</div>
+                                <span class="translate" data-key="okay">Okay</span>
+                            </div>
+                            <div class="mood-option" data-mood="bad">
+                                <div class="mood-icon">😞</div>
+                                <span class="translate" data-key="bad">Bad</span>
+                            </div>
+                            <div class="mood-option" data-mood="terrible">
+                                <div class="mood-icon">😣</div>
+                                <span class="translate" data-key="terrible">Terrible</span>
+                            </div>
+                        </div>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="notes">Notes (Optional)</label>
-                        <textarea id="notes" placeholder="How are you feeling today?"></textarea>
+                        <label for="notes" class="translate" data-key="notes">Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Add any additional notes about your symptoms..."></textarea>
                     </div>
-
-                    <button type="submit" class="submit-button">Save Today's Log</button>
+                    
+                    <button type="submit" class="btn btn-success btn-large">
+                        <i class="fas fa-save"></i> <span class="translate" data-key="save-log">Save Log</span>
+                    </button>
                 </form>
             </div>
-
-            <!-- Medication Logging Card -->
-            <div class="card">
-                <h2 class="card-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21Z" stroke="currentColor" stroke-width="2"/>
-                        <rect x="8" y="7" width="8" height="2" rx="1" fill="currentColor"/>
-                        <rect x="8" y="11" width="8" height="2" rx="1" fill="currentColor"/>
-                        <rect x="8" y="15" width="8" height="2" rx="1" fill="currentColor"/>
-                    </svg>
-                    Medication Tracker
-                </h2>
-
-                <div class="medication-list">
-                    <div class="medication-item">
-                        <div class="medication-details">
-                            <span class="medication-name">Metformin</span>
-                            <span class="medication-time">Morning - 8:00 AM</span>
-                        </div>
-                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
-                    </div>
-
-                    <div class="medication-item">
-                        <div class="medication-details">
-                            <span class="medication-name">Levothyroxine</span>
-                            <span class="medication-time">Morning - 7:00 AM</span>
-                        </div>
-                        <button class="taken-button taken" disabled>Taken ✓</button>
-                    </div>
-
-                    <div class="medication-item">
-                        <div class="medication-details">
-                            <span class="medication-name">Ibuprofen</span>
-                            <span class="medication-time">As needed</span>
-                        </div>
-                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
-                    </div>
-
-                    <div class="medication-item">
-                        <div class="medication-details">
-                            <span class="medication-name">Amlodipine</span>
-                            <span class="medication-time">Evening - 6:00 PM</span>
-                        </div>
-                        <button class="taken-button" onclick="markAsTaken(this)">Mark as Taken</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Symptom Trends Card -->
-            <div class="card">
-                <h2 class="card-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 12L7 8L13 14L17 10L21 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M3 17H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Symptom Trends
-                </h2>
-
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab(this, 'daily-view')">Daily</div>
-                    <div class="tab" onclick="switchTab(this, 'weekly-view')">Weekly</div>
-                </div>
-
-                <div id="daily-view" class="chart-container">
-                    <canvas id="dailyChart"></canvas>
-                </div>
-
-                <div id="weekly-view" class="chart-container" style="display: none;">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Reminders Card -->
-            <div class="card">
-                <h2 class="card-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Reminder Settings
-                </h2>
-
-                <form id="reminder-form">
-                    <div class="form-group">
-                        <label for="symptom-reminder">Symptom Log Reminder</label>
-                        <select id="symptom-reminder">
-                            <option value="morning">Morning (9:00 AM)</option>
-                            <option value="evening" selected>Evening (7:00 PM)</option>
-                            <option value="none">No Reminder</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="med-reminder">Medication Reminders</label>
-                        <select id="med-reminder">
-                            <option value="each">Each Medication Time</option>
-                            <option value="all" selected>All Medications</option>
-                            <option value="none">No Reminders</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="submit-button">Save Reminder Settings</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reminder Popup (Initially Hidden) -->
-    <div id="reminder" class="reminder" style="display: none;">
-        <div class="reminder-icon">⏰</div>
-        <div class="reminder-content">
-            <div class="reminder-title">Medication Reminder</div>
-            <div class="reminder-text">It's time to take your Metformin</div>
-        </div>
-        <button class="close-reminder" onclick="dismissReminder()">×</button>
-    </div>
-
-    <script>
-        // Initialize Charts
-        function initCharts() {
-            // Daily Chart
-            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-            const dailyChart = new Chart(dailyCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Pain Level',
-                        data: [5, 6, 4, 3, 5, 2, 3],
-                        borderColor: '#4A90E2',
-                        backgroundColor: 'rgba(74, 144, 226, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }, {
-                        label: 'Mood (1-5)',
-                        data: [3, 3, 4, 4, 3, 5, 4],
-                        borderColor: '#5DC96C',
-                        backgroundColor: 'rgba(93, 201, 108, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            ticks: {
-                                stepSize: 2
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Weekly Chart
-            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-            const weeklyChart = new Chart(weeklyCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    datasets: [{
-                        label: 'Avg. Pain Level',
-                        data: [4.5, 3.8, 2.9, 3.2],
-                        backgroundColor: 'rgba(74, 144, 226, 0.7)',
-                    }, {
-                        label: 'Avg. Mood (1-5)',
-                        data: [3.2, 3.8, 4.1, 3.9],
-                        backgroundColor: 'rgba(93, 201, 108, 0.7)',
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            ticks: {
-                                stepSize: 2
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Set chart container height
-            document.querySelectorAll('.chart-container').forEach(container => {
-                container.style.height = '250px';
-            });
-        }
-
-        // Tab switching function
-        function switchTab(tabElement, viewId) {
-            // Update active tab
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            tabElement.classList.add('active');
-
-            // Show selected view, hide others
-            document.querySelectorAll('.chart-container').forEach(container => {
-                container.style.display = 'none';
-            });
-            document.getElementById(viewId).style.display = 'block';
-        }
-
-        // Mark medication as taken
-        function markAsTaken(buttonElement) {
-            buttonElement.textContent = 'Taken ✓';
-            buttonElement.classList.add('taken');
-            buttonElement.disabled = true;
             
-            // Show confirmation animation
-            const item = buttonElement.closest('.medication-item');
-            item.classList.add('fade-in');
-            setTimeout(() => {
-                item.classList.remove('fade-in');
-            }, 300);
+            <!-- Medication Tracking Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-pills"></i> <span class="translate" data-key="medications">Medications</span></h2>
+                    <button class="btn btn-primary" id="add-med-btn">
+                        <i class="fas fa-plus"></i> <span class="translate" data-key="add-medication">Add Medication</span>
+                    </button>
+                </div>
+                <!-- Add Medication Form (Initially Hidden) -->
+                <div class="medication-form" id="medication-form" style="display: none;">
+                    <form id="new-med-form">
+                        <div class="form-group">
+                            <label for="med-name" class="translate" data-key="med-name">Medication Name</label>
+                            <input type="text" id="med-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="med-dosage" class="translate" data-key="med-dosage">Dosage</label>
+                            <input type="text" id="med-dosage" placeholder="e.g., 500mg" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="med-schedule" class="translate" data-key="med-schedule">Schedule</label>
+                            <input type="text" id="med-schedule" placeholder="e.g., Morning, Evening, With meal" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="med-notes" class="translate" data-key="med-notes">Additional Notes</label>
+                            <textarea id="med-notes" rows="2"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> <span class="translate" data-key="save-med">Save Medication</span>
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancel-med-btn">
+                                <i class="fas fa-times"></i> <span class="translate" data-key="cancel">Cancel</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <ul class="medication-list" id="medication-list">
+                    <li class="medication-item">
+                        <div class="medication-info">
+                            <span class="medication-name">Metformin</span>
+                            <span class="medication-schedule">500mg - Morning</span>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-primary med-taken-btn">
+                                <i class="fas fa-check"></i> <span class="translate" data-key="taken">Taken</span>
+                            </button>
+                            <button class="btn btn-danger med-note-btn">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                        </div>
+                    </li>
+                    <li class="medication-item">
+                        <div class="medication-info">
+                            <span class="medication-name">Lisinopril</span>
+                            <span class="medication-schedule">10mg - Evening</span>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-primary med-taken-btn">
+                                <i class="fas fa-check"></i> <span class="translate" data-key="taken">Taken</span>
+                            </button>
+                            <button class="btn btn-danger med-note-btn">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                        </div>
+                    </li>
+                    <li class="medication-item">
+                        <div class="medication-info">
+                            <span class="medication-name">Vitamin D</span>
+                            <span class="medication-schedule">1000 IU - With meal</span>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-primary med-taken-btn">
+                                <i class="fas fa-check"></i> <span class="translate" data-key="taken">Taken</span>
+                            </button>
+                            <button class="btn btn-danger med-note-btn">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Symptom Trends Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-chart-line"></i> <span class="translate" data-key="symptom-trends">Symptom Trends</span></h2>
+                </div>
+                <div class="chart-tabs">
+                    <div class="chart-tab active" data-view="daily">
+                        <span class="translate" data-key="daily">Daily</span>
+                    </div>
+                    <div class="chart-tab" data-view="weekly">
+                        <span class="translate" data-key="weekly">Weekly</span>
+                    </div>
+                    <div class="chart-tab" data-view="monthly">
+                        <span class="translate" data-key="monthly">Monthly</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="symptomChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Log History -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-history"></i> <span class="translate" data-key="log-history">Log History</span></h2>
+                </div>
+                <div class="log-history">
+                    <div class="log-item">
+                        <div>
+                            <div class="translate" data-key="today">Today</div>
+                            <div class="log-date">12 Apr, 10:30 AM</div>
+                        </div>
+                        <div class="log-pain">
+                            <div class="pain-indicator" style="background-color: #FFD166;"></div>
+                            <span>4/10</span>
+                        </div>
+                    </div>
+                    <div class="log-item">
+                        <div>
+                            <div class="translate" data-key="yesterday">Yesterday</div>
+                            <div class="log-date">11 Apr, 09:15 AM</div>
+                        </div>
+                        <div class="log-pain">
+                            <div class="pain-indicator" style="background-color: #FF9F1C;"></div>
+                            <span>5/10</span>
+                        </div>
+                    </div>
+                    <div class="log-item">
+                        <div>
+                            <div>10 Apr 2025</div>
+                            <div class="log-date">08:45 AM</div>
+                        </div>
+                        <div class="log-pain">
+                            <div class="pain-indicator" style="background-color: #FF9F1C;"></div>
+                            <span>6/10</span>
+                        </div>
+                    </div>
+                    <div class="log-item">
+                        <div>
+                            <div>09 Apr 2025</div>
+                            <div class="log-date">09:30 AM</div>
+                        </div>
+                        <div class="log-pain">
+                            <div class="pain-indicator" style="background-color: #FFD166;"></div>
+                            <span>4/10</span>
+                        </div>
+                    </div>
+                    <div class="log-item">
+                        <div>
+                            <div>08 Apr 2025</div>
+                            <div class="log-date">10:00 AM</div>
+                        </div>
+                        <div class="log-pain">
+                            <div class="pain-indicator" style="background-color: #70C1B3;"></div>
+                            <span>2/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Generation Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-file-medical"></i> <span class="translate" data-key="patient-report">Patient Report</span></h2>
+                    <button class="btn btn-primary" id="generate-report-btn">
+                        <i class="fas fa-file-alt"></i> <span class="translate" data-key="generate-report">Generate Report</span>
+                    </button>
+                </div>
+                <div class="report-form" id="report-form" style="display: none;">
+                    <form id="report-settings">
+                        <div class="date-range">
+                            <div class="form-group">
+                                <label for="start-date" class="translate" data-key="start-date">Start Date</label>
+                                <input type="date" id="start-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="end-date" class="translate" data-key="end-date">End Date</label>
+                                <input type="date" id="end-date" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="translate" data-key="include-sections">Include Sections</label>
+                            <div class="report-option">
+                                <input type="checkbox" id="include-symptoms" checked>
+                                <label for="include-symptoms" class="translate" data-key="symptoms">Symptoms</label>
+                            </div>
+                            <div class="report-option">
+                                <input type="checkbox" id="include-medications" checked>
+                                <label for="include-medications" class="translate" data-key="medications">Medications</label>
+                            </div>
+                            <div class="report-option">
+                                <input type="checkbox" id="include-trends" checked>
+                                <label for="include-trends" class="translate" data-key="trends">Symptom Trends</label>
+                            </div>
+                            <div class="report-option">
+                                <input type="checkbox" id="include-notes" checked>
+                                <label for="include-notes" class="translate" data-key="notes">Additional Notes</label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-eye"></i> <span class="translate" data-key="preview-report">Preview Report</span>
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancel-report-btn">
+                                <i class="fas fa-times"></i> <span class="translate" data-key="cancel">Cancel</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="report-preview" id="report-preview" style="display: none;">
+                    <div class="report-section" id="symptoms-section">
+                        <h3 class="translate" data-key="symptoms">Symptoms</h3>
+                        <div id="symptoms-content"></div>
+                    </div>
+                    <div class="report-section" id="medications-section">
+                        <h3 class="translate" data-key="medications">Medications</h3>
+                        <div id="medications-content"></div>
+                    </div>
+                    <div class="report-section" id="trends-section">
+                        <h3 class="translate" data-key="trends">Symptom Trends</h3>
+                        <div id="trends-content"></div>
+                    </div>
+                    <div class="report-section" id="notes-section">
+                        <h3 class="translate" data-key="notes">Additional Notes</h3>
+                        <div id="notes-content"></div>
+                    </div>
+                    <div class="report-actions">
+                        <button class="btn btn-primary" id="send-report-btn">
+                            <i class="fas fa-paper-plane"></i> <span class="translate" data-key="send-report">Send to Doctor</span>
+                        </button>
+                        <button class="btn btn-success" id="download-report-btn">
+                            <i class="fas fa-download"></i> <span class="translate" data-key="download-report">Download PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reminder Settings Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-bell"></i> <span class="translate" data-key="reminder-settings">Reminder Settings</span></h2>
+                </div>
+                <div class="reminder-settings">
+                    <form id="reminder-form">
+                        <div class="form-group">
+                            <label class="translate" data-key="daily-reminders">Daily Reminders</label>
+                            <div class="reminder-options">
+                                <div class="reminder-option">
+                                    <input type="checkbox" id="symptom-reminder" checked title="Enable symptom logging reminder">
+                                    <label for="symptom-reminder" class="translate" data-key="symptom-reminder">Symptom Logging</label>
+                                    <input type="time" id="symptom-time" value="09:00" title="Set symptom logging reminder time">
+                                </div>
+                                <div class="reminder-option">
+                                    <input type="checkbox" id="morning-med-reminder" checked title="Enable morning medication reminder">
+                                    <label for="morning-med-reminder" class="translate" data-key="morning-med">Morning Medication</label>
+                                    <input type="time" id="morning-med-time" value="08:00" title="Set morning medication reminder time">
+                                </div>
+                                <div class="reminder-option">
+                                    <input type="checkbox" id="evening-med-reminder" checked title="Enable evening medication reminder">
+                                    <label for="evening-med-reminder" class="translate" data-key="evening-med">Evening Medication</label>
+                                    <input type="time" id="evening-med-time" value="20:00" title="Set evening medication reminder time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success" title="Save reminder settings">
+                                <i class="fas fa-save"></i> <span class="translate" data-key="save-reminders">Save Reminders</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- ADR Check Button -->
+        <a href="127.0.0.1:5000" class="adr-button">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <span class="translate" data-key="report-problem">Report Problem or Check Side Effects</span>
+        </a>
+        
+    </div>
+
+    <!-- Reminder Toast Notification -->
+    <div class="reminder" id="reminder" style="display: none;">
+        <div class="reminder-content">
+            <div class="reminder-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="reminder-message">
+                <strong class="translate" data-key="reminder">Reminder:</strong> <span id="reminder-text">Time to take your evening medication</span>
+            </div>
+        </div>
+        <div class="reminder-close">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+
+    <!-- AI Health Assistant Icon -->
+    <div class="ai-icon-container" onclick="toggleChat()">
+        <div class="ai-icon">
+            <span class="hospital-cross">+</span>
+            <i class="fas fa-user-md"></i>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-interface" id="chat-interface">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>Virtual Health Assistant</h2>
+                <div class="disclaimer">
+                    ⚠️ MEDICAL DISCLAIMER: These are general home remedies only. 
+                    Please consult a healthcare professional for proper medical advice.
+                    Use remedies at your own risk.
+                </div>
+                <div class="symptoms-list">
+                    Available symptoms: headache, cold, fever, cough, stomachache, 
+                    sore throat, allergies, insomnia, joint pain, nausea, constipation, diarrhea
+                </div>
+            </div>
+            <div class="chat-box" id="chat-box">
+                <div class="message bot-message">
+                    Hello! I'm your Virtual Health Assistant. How can I help you today? Please describe your symptoms.
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Describe your symptoms...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    
+    <script>
+        // Language translations
+        const translations = {
+            'en': {
+                'symptom-log': 'Daily Symptom Log',
+                'pain-level': 'Pain Level',
+                'no-pain': 'No Pain',
+                'moderate': 'Moderate',
+                'severe': 'Severe',
+                'mood': 'Mood',
+                'great': 'Great',
+                'good': 'Good',
+                'okay': 'Okay',
+                'bad': 'Bad',
+                'terrible': 'Terrible',
+                'notes': 'Notes',
+                'save-log': 'Save Log',
+                'medications': 'Medications',
+                'taken': 'Taken',
+                'symptom-trends': 'Symptom Trends',
+                'daily': 'Daily',
+                'weekly': 'Weekly',
+                'monthly': 'Monthly',
+                'log-history': 'Log History',
+                'today': 'Today',
+                'yesterday': 'Yesterday',
+                'report-problem': 'Report Problem or Check Side Effects',
+                'reminder': 'Reminder:',
+                'add-medication': 'Add Medication',
+                'med-name': 'Medication Name',
+                'med-dosage': 'Dosage',
+                'med-schedule': 'Schedule',
+                'med-notes': 'Additional Notes',
+                'save-med': 'Save Medication',
+                'cancel': 'Cancel',
+                'patient-report': 'Patient Report',
+                'generate-report': 'Generate Report',
+                'start-date': 'Start Date',
+                'end-date': 'End Date',
+                'include-sections': 'Include Sections',
+                'symptoms': 'Symptoms',
+                'trends': 'Symptom Trends',
+                'preview-report': 'Preview Report',
+                'send-report': 'Send to Doctor',
+                'download-report': 'Download PDF',
+                'reminder-settings': 'Reminder Settings',
+                'daily-reminders': 'Daily Reminders',
+                'symptom-reminder': 'Symptom Logging',
+                'morning-med': 'Morning Medication',
+                'evening-med': 'Evening Medication',
+                'save-reminders': 'Save Reminders',
+                'women-health': 'Women\'s Health'
+            },
+            'hi': {
+                'symptom-log': 'दैनिक लक्षण लॉग',
+                'pain-level': 'दर्द का स्तर',
+                'no-pain': 'कोई दर्द नहीं',
+                'moderate': 'मध्यम',
+                'severe': 'गंभीर',
+                'mood': 'मूड',
+                'great': 'बहुत अच्छा',
+                'good': 'अच्छा',
+                'okay': 'ठीक',
+                'bad': 'बुरा',
+                'terrible': 'बहुत बुरा',
+                'notes': 'नोट्स',
+                'save-log': 'लॉग सहेजें',
+                'medications': 'दवाइयां',
+                'taken': 'ली गई',
+                'symptom-trends': 'लक्षण प्रवृत्तियां',
+                'daily': 'दैनिक',
+                'weekly': 'साप्ताहिक',
+                'monthly': 'मासिक',
+                'log-history': 'लॉग इतिहास',
+                'today': 'आज',
+                'yesterday': 'कल',
+                'report-problem': 'समस्या की रिपोर्ट करें या साइड इफेक्ट्स जांचें',
+                'reminder': 'अनुस्मारक:',
+                'add-medication': 'दवा जोड़ें',
+                'med-name': 'दवा का नाम',
+                'med-dosage': 'खुराक',
+                'med-schedule': 'समय सारिणी',
+                'med-notes': 'अतिरिक्त नोट्स',
+                'save-med': 'दवा सहेजें',
+                'cancel': 'रद्द करें',
+                'patient-report': 'रोगी रिपोर्ट',
+                'generate-report': 'रिपोर्ट बनाएं',
+                'start-date': 'प्रारंभ तिथि',
+                'end-date': 'अंतिम तिथि',
+                'include-sections': 'शामिल करने के लिए अनुभाग',
+                'symptoms': 'लक्षण',
+                'trends': 'लक्षण प्रवृत्तियां',
+                'preview-report': 'रिपोर्ट पूर्वावलोकन',
+                'send-report': 'डॉक्टर को भेजें',
+                'download-report': 'पीडीएफ डाउनलोड करें',
+                'reminder-settings': 'अनुस्मारक सेटिंग्स',
+                'daily-reminders': 'दैनिक अनुस्मारक',
+                'symptom-reminder': 'लक्षण लॉगिंग',
+                'morning-med': 'सुबह की दवा',
+                'evening-med': 'शाम की दवा',
+                'save-reminders': 'अनुस्मारक सहेजें',
+                'women-health': 'महिला स्वास्थ्य'
+            },
+            'kn': {
+                'symptom-log': 'ದೈನಂದಿನ ರೋಗಲಕ್ಷಣ ದಾಖಲೆ',
+                'pain-level': 'ನೋವಿನ ಮಟ್ಟ',
+                'no-pain': 'ನೋವಿಲ್ಲ',
+                'moderate': 'ಮಧ್ಯಮ',
+                'severe': 'ತೀವ್ರ',
+                'mood': 'ಮನಸ್ಥಿತಿ',
+                'great': 'ಅದ್ಭುತ',
+                'good': 'ಒಳ್ಳೆಯದು',
+                'okay': 'ಸರಿ',
+                'bad': 'ಕೆಟ್ಟದು',
+                'terrible': 'ಅತ್ಯಂತ ಕೆಟ್ಟದು',
+                'notes': 'ಟಿಪ್ಪಣಿಗಳು',
+                'save-log': 'ದಾಖಲೆ ಉಳಿಸಿ',
+                'medications': 'ಔಷಧಿಗಳು',
+                'taken': 'ತೆಗೆದುಕೊಂಡಿದೆ',
+                'symptom-trends': 'ರೋಗಲಕ್ಷಣ ಪ್ರವೃತ್ತಿಗಳು',
+                'daily': 'ದೈನಂದಿನ',
+                'weekly': 'ವಾರದ',
+                'monthly': 'ಮಾಸಿಕ',
+                'log-history': 'ದಾಖಲೆ ಇತಿಹಾಸ',
+                'today': 'ಇಂದು',
+                'yesterday': 'ನಿನ್ನೆ',
+                'report-problem': 'ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ ಅಥವಾ ಅಡ್ಡ ಪರಿಣಾಮಗಳನ್ನು ಪರಿಶೀಲಿಸಿ',
+                'reminder': 'ಜ್ಞಾಪನೆ:',
+                'add-medication': 'ಔಷಧಿ ಸೇರಿಸಿ',
+                'med-name': 'ಔಷಧಿಯ ಹೆಸರು',
+                'med-dosage': 'ಮೊತ್ತ',
+                'med-schedule': 'ವೇಳಾಪಟ್ಟಿ',
+                'med-notes': 'ಹೆಚ್ಚುವರಿ ಟಿಪ್ಪಣಿಗಳು',
+                'save-med': 'ಔಷಧಿ ಉಳಿಸಿ',
+                'cancel': 'ರದ್ದುಮಾಡಿ',
+                'patient-report': 'ರೋಗಿ ವರದಿ',
+                'generate-report': 'ವರದಿ ರಚಿಸಿ',
+                'start-date': 'ಪ್ರಾರಂಭ ದಿನಾಂಕ',
+                'end-date': 'ಅಂತಿಮ ದಿನಾಂಕ',
+                'include-sections': 'ಸೇರಿಸಲು ವಿಭಾಗಗಳು',
+                'symptoms': 'ರೋಗಲಕ್ಷಣಗಳು',
+                'trends': 'ರೋಗಲಕ್ಷಣ ಪ್ರವೃತ್ತಿಗಳು',
+                'notes': 'ಹೆಚ್ಚುವರಿ ಟಿಪ್ಪಣಿಗಳು',
+                'preview-report': 'ವರದಿ ಪೂರ್ವವೀಕ್ಷಣೆ',
+                'send-report': 'ವೈದ್ಯರಿಗೆ ಕಳುಹಿಸಿ',
+                'download-report': 'ಪಿಡಿಎಫ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿ',
+                'reminder-settings': 'ಜ್ಞಾಪನೆ ಸೆಟ್ಟಿಂಗ್ಗಳು',
+                'daily-reminders': 'ದೈನಂದಿನ ಜ್ಞಾಪನೆಗಳು',
+                'symptom-reminder': 'ರೋಗಲಕ್ಷಣ ಲಾಗಿಂಗ್',
+                'morning-med': 'ಬೆಳಗಿನ ಔಷಧಿ',
+                'evening-med': 'ಸಂಜೆಯ ಔಷಧಿ',
+                'save-reminders': 'ಜ್ಞಾಪನೆಗಳನ್ನು ಉಳಿಸಿ',
+                'women-health': 'ಮಹಿಳೆಯರ ಆರೋಗ್ಯ'
+            }
+        };
+
+        // Language switcher functionality
+        document.querySelectorAll('.language-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                changeLanguage(lang);
+                
+                // Update active button
+                document.querySelectorAll('.language-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        function changeLanguage(lang) {
+            const elementsToTranslate = document.querySelectorAll('.translate');
+            elementsToTranslate.forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholders
+            if (lang === 'en') {
+                document.getElementById('notes').placeholder = 'Add any additional notes about your symptoms...';
+                document.getElementById('user-input').placeholder = 'Describe your symptoms...';
+            } else if (lang === 'hi') {
+                document.getElementById('notes').placeholder = 'अपने लक्षणों के बारे में अतिरिक्त नोट्स जोड़ें...';
+                document.getElementById('user-input').placeholder = 'अपने लक्षणों का वर्णन करें...';
+            } else if (lang === 'kn') {
+                document.getElementById('notes').placeholder = 'ನಿಮ್ಮ ರೋಗಲಕ್ಷಣಗಳ ಬಗ್ಗೆ ಹೆಚ್ಚುವರಿ ಟಿಪ್ಪಣಿಗಳನ್ನು ಸೇರಿಸಿ...';
+                document.getElementById('user-input').placeholder = 'ನಿಮ್ಮ ರೋಗಲಕ್ಷಣಗಳನ್ನು ವಿವರಿಸಿ...';
+            }
         }
 
-        // Form submission handler
+        // Symptom form submission
         document.getElementById('symptom-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form values
             const painLevel = document.getElementById('pain-level').value;
-            const mood = document.getElementById('mood').value;
+            const selectedMood = document.querySelector('.mood-option.selected').getAttribute('data-mood');
             const notes = document.getElementById('notes').value;
             
-            // In a real app, this would send data to the server
-            console.log('Submitted symptom log:', { painLevel, mood, notes });
+            // Add to log history
+            addLogEntry(painLevel);
             
-            // Show success message or animation
-            const submitButton = this.querySelector('.submit-button');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'Saved! ✓';
+            // Update chart
+            updateChart(painLevel);
             
+            // Show confirmation toast
+            showReminder("Symptom log saved successfully!");
+            
+            // Clear form
+            document.getElementById('notes').value = '';
+        });
+        
+        // Mood selector functionality
+        document.querySelectorAll('.mood-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.mood-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Medication taken button functionality
+        document.querySelectorAll('.med-taken-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check-double"></i> <span class="translate" data-key="taken">Taken</span>';
+                this.style.backgroundColor = '#5CB85C';
+                this.disabled = true;
+                
+                // Show confirmation
+                const medName = this.closest('.medication-item').querySelector('.medication-name').textContent;
+                showReminder(`${medName} marked as taken!`);
+            });
+        });
+        
+        // Function to add log entry
+        function addLogEntry(painLevel) {
+            const logHistory = document.querySelector('.log-history');
+            const today = new Date();
+            const formattedDate = today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Get pain color based on level
+            let painColor;
+            if (painLevel <= 3) {
+                painColor = '#70C1B3'; // Green for low pain
+            } else if (painLevel <= 6) {
+                painColor = '#FFD166'; // Yellow for medium pain
+            } else {
+                painColor = '#E07A5F'; // Red for high pain
+            }
+            
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            logItem.innerHTML = `
+                <div>
+                    <div class="translate" data-key="today">Today</div>
+                    <div class="log-date">${formattedDate}</div>
+                </div>
+                <div class="log-pain">
+                    <div class="pain-indicator" style="background-color: ${painColor};"></div>
+                    <span>${painLevel}/10</span>
+                </div>
+            `;
+            
+            // Add to the top of the list
+            logHistory.insertBefore(logItem, logHistory.firstChild);
+        }
+        
+        // Chart setup
+        let symptomChart;
+        
+        function setupChart() {
+            const ctx = document.getElementById('symptomChart').getContext('2d');
+            
+            // Sample data
+            const data = {
+                labels: ['Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12'],
+                datasets: [{
+                    label: 'Pain Level',
+                    data: [3, 5, 2, 4, 6, 5, 4],
+                    borderColor: '#4A90E2',
+                    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+            
+            symptomChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to update chart with new data
+        function updateChart(newPainLevel) {
+            // Remove the oldest data point
+            symptomChart.data.datasets[0].data.shift();
+            
+            // Add the new data point
+            symptomChart.data.datasets[0].data.push(parseInt(newPainLevel));
+            
+            // Update chart
+            symptomChart.update();
+        }
+        
+        // Chart tab switching
+        document.querySelectorAll('.chart-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const view = this.getAttribute('data-view');
+                
+                // Update active tab
+                document.querySelectorAll('.chart-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Update chart data based on view
+                updateChartView(view);
+            });
+        });
+        
+        function updateChartView(view) {
+            // Sample data for different views
+            let labels, data;
+            
+            if (view === 'daily') {
+                labels = ['Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12'];
+                data = [3, 5, 2, 4, 6, 5, 4];
+            } else if (view === 'weekly') {
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = [4, 3, 5, 4];
+            } else if (view === 'monthly') {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr'];
+                data = [6, 5, 4, 4];
+            }
+            
+            // Update chart
+            symptomChart.data.labels = labels;
+            symptomChart.data.datasets[0].data = data;
+            symptomChart.update();
+        }
+        
+        // Show reminder/toast notification
+        function showReminder(message) {
+            const reminder = document.getElementById('reminder');
+            document.getElementById('reminder-text').textContent = message;
+            
+            reminder.style.display = 'flex';
+            
+            // Auto-hide after 5 seconds
             setTimeout(() => {
-                submitButton.textContent = originalText;
-                document.getElementById('notes').value = '';
-            }, 2000);
+                reminder.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Close reminder button
+        document.querySelector('.reminder-close').addEventListener('click', function() {
+            document.getElementById('reminder').style.display = 'none';
+        });
+        
+        // ADR Button click
+        document.querySelector('.adr-button').addEventListener('click', function() {
+            showReminder("Opening adverse drug reaction report form...");
+            // In a real application, this would open a form or redirect to a reporting page
+        });
+        
+        // AI Health Assistant Chat Functions
+        const remedies = {
+            'headache': 'You might try:\n- Rest in a quiet, dark room\n- Apply a cold or warm compress\n- Stay hydrated\n- Ginger tea\n- Peppermint oil on temples\n- Massage your temples gently',
+            'cold': 'Consider these remedies:\n- Honey and warm lemon water\n- Steam inhalation\n- Ginger tea\n- Rest and stay hydrated\n- Garlic soup\n- Vitamin C rich foods',
+            'fever': 'Try these:\n- Rest\n- Stay hydrated\n- Lukewarm sponge bath\n- Light clothing\n- Tulsi (Holy Basil) tea\n- Apple cider vinegar compress',
+            'cough': 'These might help:\n- Honey with warm water\n- Turmeric milk\n- Steam inhalation\n- Ginger-honey mixture\n- Salt water gargle\n- Thyme tea',
+            'stomachache': 'Consider these remedies:\n- Ginger tea\n- Peppermint tea\n- BRAT diet (Bananas, Rice, Applesauce, Toast)\n- Warm compress\n- Apple cider vinegar with water\n- Plain yogurt',
+            'sore throat': 'Try these soothing remedies:\n- Salt water gargle\n- Honey and warm water\n- Chamomile tea\n- Slippery elm tea\n- Apple cider vinegar gargle',
+            'allergies': 'These might provide relief:\n- Local honey\n- Steam inhalation with eucalyptus\n- Nettle tea\n- Saline nasal rinse\n- Apple cider vinegar',
+            'insomnia': 'Try these before bed:\n- Chamomile tea\n- Warm milk with honey\n- Lavender essential oil\n- Deep breathing exercises\n- Avoid screens before bedtime',
+            'joint pain': 'Consider these natural remedies:\n- Turmeric milk\n- Ginger compress\n- Epsom salt bath\n- Apple cider vinegar drink\n- Gentle stretching',
+            'nausea': 'These might help settle your stomach:\n- Ginger tea\n- Peppermint tea\n- Small sips of clear fluids\n- BRAT diet\n- Lemon water',
+            'constipation': 'Try these natural remedies:\n- Warm water with lemon in morning\n- Increase fiber intake\n- Prune juice\n- Exercise\n- Massage abdomen',
+            'diarrhea': 'Consider these remedies:\n- BRAT diet\n- Stay hydrated\n- Chamomile tea\n- Probiotics\n- Apple cider vinegar\n- Clear broths'
+        };
+
+        function toggleChat() {
+            const chatInterface = document.getElementById('chat-interface');
+            chatInterface.style.display = chatInterface.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            
+            if (input.value.trim() === '') return;
+
+            // Add user message
+            chatBox.innerHTML += `<div class="message user-message">${input.value}</div>`;
+
+            // Generate response based on keywords
+            let response = "I understand you're not feeling well. ";
+            let foundSymptom = false;
+            
+            for (let symptom in remedies) {
+                if (input.value.toLowerCase().includes(symptom)) {
+                    response += remedies[symptom];
+                    foundSymptom = true;
+                }
+            }
+            
+            if (!foundSymptom) {
+                response += "Could you please provide more specific symptoms? I can suggest home remedies for various conditions including headache, cold, fever, cough, stomachache, sore throat, allergies, insomnia, joint pain, nausea, constipation, and diarrhea.";
+            }
+
+            // Add bot response with delay
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="message bot-message">${response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 500);
+
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Show a reminder after the page loads
+        window.addEventListener('load', function() {
+            // Initialize the chart
+            setupChart();
+            
+            // Init chat interface as hidden
+            document.getElementById('chat-interface').style.display = 'none';
+            
+            // Show a welcome reminder after 3 seconds
+            setTimeout(() => {
+                showReminder("Welcome back! Don't forget to log your symptoms today.");
+            }, 3000);
         });
 
-        // Reminder settings form
+        // Add medication form functionality
+        document.getElementById('add-med-btn').addEventListener('click', function() {
+            document.getElementById('medication-form').style.display = 'block';
+        });
+
+        document.getElementById('cancel-med-btn').addEventListener('click', function() {
+            document.getElementById('medication-form').style.display = 'none';
+            document.getElementById('new-med-form').reset();
+        });
+
+        document.getElementById('new-med-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const medName = document.getElementById('med-name').value;
+            const medDosage = document.getElementById('med-dosage').value;
+            const medSchedule = document.getElementById('med-schedule').value;
+            const medNotes = document.getElementById('med-notes').value;
+            
+            // Create new medication item
+            const newMedItem = document.createElement('li');
+            newMedItem.className = 'medication-item';
+            newMedItem.innerHTML = `
+                <div class="medication-info">
+                    <span class="medication-name">${medName}</span>
+                    <span class="medication-schedule">${medDosage} - ${medSchedule}</span>
+                    ${medNotes ? `<span class="medication-notes">${medNotes}</span>` : ''}
+                </div>
+                <div class="medication-actions">
+                    <button class="btn btn-primary med-taken-btn">
+                        <i class="fas fa-check"></i> <span class="translate" data-key="taken">Taken</span>
+                    </button>
+                    <button class="btn btn-danger med-note-btn" title="Add Note">
+                        <i class="fas fa-sticky-note"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add to the medication list
+            document.getElementById('medication-list').appendChild(newMedItem);
+            
+            // Reset and hide form
+            this.reset();
+            document.getElementById('medication-form').style.display = 'none';
+            
+            // Show success message
+            showReminder(`${medName} added successfully!`);
+            
+            // Add event listeners to new buttons
+            newMedItem.querySelector('.med-taken-btn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-check-double"></i> <span class="translate" data-key="taken">Taken</span>';
+                this.style.backgroundColor = '#5CB85C';
+                this.disabled = true;
+                showReminder(`${medName} marked as taken!`);
+            });
+        });
+
+        // Report Generation Functionality
+        document.getElementById('generate-report-btn').addEventListener('click', function() {
+            document.getElementById('report-form').style.display = 'block';
+            document.getElementById('report-preview').style.display = 'none';
+        });
+
+        document.getElementById('cancel-report-btn').addEventListener('click', function() {
+            document.getElementById('report-form').style.display = 'none';
+            document.getElementById('report-preview').style.display = 'none';
+            document.getElementById('report-settings').reset();
+        });
+
+        document.getElementById('report-settings').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            // Generate report content based on selected options
+            if (document.getElementById('include-symptoms').checked) {
+                generateSymptomsContent(startDate, endDate);
+            }
+            if (document.getElementById('include-medications').checked) {
+                generateMedicationsContent();
+            }
+            if (document.getElementById('include-trends').checked) {
+                generateTrendsContent();
+            }
+            if (document.getElementById('include-notes').checked) {
+                generateNotesContent();
+            }
+            
+            document.getElementById('report-form').style.display = 'none';
+            document.getElementById('report-preview').style.display = 'block';
+        });
+
+        function generateSymptomsContent(startDate, endDate) {
+            const symptomsContent = document.getElementById('symptoms-content');
+            // In a real application, this would fetch data from a database
+            symptomsContent.innerHTML = `
+                <p>Date Range: ${startDate} to ${endDate}</p>
+                <ul>
+                    <li>Average Pain Level: 4/10</li>
+                    <li>Most Common Mood: Good</li>
+                    <li>Key Symptoms: Headache, Fatigue</li>
+                </ul>
+            `;
+        }
+
+        function generateMedicationsContent() {
+            const medicationsContent = document.getElementById('medications-content');
+            medicationsContent.innerHTML = `
+                <ul>
+                    <li>Metformin (500mg) - Morning - 90% adherence</li>
+                    <li>Lisinopril (10mg) - Evening - 85% adherence</li>
+                    <li>Vitamin D (1000 IU) - With meal - 95% adherence</li>
+                </ul>
+            `;
+        }
+
+        function generateTrendsContent() {
+            const trendsContent = document.getElementById('trends-content');
+            trendsContent.innerHTML = `
+                <p>Pain levels have been relatively stable, with a slight increase in the last week.</p>
+                <p>Mood has been consistently good, with occasional dips to "okay".</p>
+            `;
+        }
+
+        function generateNotesContent() {
+            const notesContent = document.getElementById('notes-content');
+            notesContent.innerHTML = `
+                <ul>
+                    <li>Experienced mild dizziness after taking morning medication</li>
+                    <li>Sleep quality has improved since starting Vitamin D</li>
+                    <li>Noticed increased energy levels in the afternoon</li>
+                </ul>
+            `;
+        }
+
+        document.getElementById('send-report-btn').addEventListener('click', function() {
+            showReminder("Report sent to doctor successfully!");
+            // In a real application, this would send the report via email
+        });
+
+        document.getElementById('download-report-btn').addEventListener('click', function() {
+            showReminder("Report downloaded as PDF!");
+            // In a real application, this would generate and download a PDF
+        });
+
+        // Reminder System Functionality
         document.getElementById('reminder-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form values
-            const symptomReminder = document.getElementById('symptom-reminder').value;
-            const medReminder = document.getElementById('med-reminder').value;
+            const reminders = {
+                symptom: {
+                    enabled: document.getElementById('symptom-reminder').checked,
+                    time: document.getElementById('symptom-time').value
+                },
+                morningMed: {
+                    enabled: document.getElementById('morning-med-reminder').checked,
+                    time: document.getElementById('morning-med-time').value
+                },
+                eveningMed: {
+                    enabled: document.getElementById('evening-med-reminder').checked,
+                    time: document.getElementById('evening-med-time').value
+                }
+            };
             
-            // In a real app, this would send data to the server
-            console.log('Saved reminder settings:', { symptomReminder, medReminder });
+            // Save reminders to localStorage
+            localStorage.setItem('reminders', JSON.stringify(reminders));
             
-            // Show success message or animation
-            const submitButton = this.querySelector('.submit-button');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'Settings Saved! ✓';
+            showReminder("Reminder settings saved successfully!");
             
+            // Start checking for reminders
+            checkReminders();
+        });
+
+        function checkReminders() {
+            const reminders = JSON.parse(localStorage.getItem('reminders') || '{}');
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                              now.getMinutes().toString().padStart(2, '0');
+            
+            if (reminders.symptom?.enabled && reminders.symptom.time === currentTime) {
+                showReminder("Time to log your daily symptoms!");
+            }
+            
+            if (reminders.morningMed?.enabled && reminders.morningMed.time === currentTime) {
+                showReminder("Time to take your morning medication!");
+            }
+            
+            if (reminders.eveningMed?.enabled && reminders.eveningMed.time === currentTime) {
+                showReminder("Time to take your evening medication!");
+            }
+        }
+
+        // Check reminders every minute
+        setInterval(checkReminders, 60000);
+
+        // Women's Health Button Functionality
+        document.getElementById('women-health-btn').addEventListener('click', function() {
+            // In a real application, this would connect to a women's health specialist
+            showReminder("Connecting you to a women's health specialist...");
+            
+            // Simulate a call to a women's health specialist
             setTimeout(() => {
-                submitButton.textContent = originalText;
-                // Show a sample reminder after settings are saved
-                showReminder();
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML += `
+                    <div class="message bot-message">
+                        Hello! I'm Dr. Smith, a women's health specialist. How can I help you today?
+                    </div>
+                `;
+                chatBox.scrollTop = chatBox.scrollHeight;
             }, 2000);
-        });
-
-        // Show reminder notification
-        function showReminder() {
-            const reminder = document.getElementById('reminder');
-            reminder.style.display = 'flex';
-            
-            // Auto-dismiss after 10 seconds
-            setTimeout(() => {
-                dismissReminder();
-            }, 10000);
-        }
-
-        // Dismiss reminder
-        function dismissReminder() {
-            const reminder = document.getElementById('reminder');
-            reminder.style.opacity = '0';
-            reminder.style.transform = 'translateX(100%)';
-            
-            setTimeout(() => {
-                reminder.style.display = 'none';
-                reminder.style.opacity = '1';
-                reminder.style.transform = 'translateX(0)';
-            }, 300);
-        }
-
-        // Report button handler
-        document.getElementById('report-button').addEventListener('click', function() {
-            alert('This feature would open a form to report side effects or check for possible adverse drug reactions.');
-        });
-
-        // Language switcher
-        function changeLanguage() {
-            const language = document.getElementById('language-select').value;
-            
-            // In a real app, this would translate the interface
-            alert(`Interface language would change to: ${language}`);
-            
-            // This is just a demo - would need actual translations in a real app
-        }
-
-        // Initialize charts when page loads
-        window.addEventListener('load', function() {
-            initCharts();
-            
-            // Show a sample reminder after 5 seconds
-            setTimeout(showReminder, 5000);
         });
     </script>
 </body>
